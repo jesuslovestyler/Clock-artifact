@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#dbe5ea" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#131719" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="data:," />
+    <title>Analog Clock</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500&display=swap');
+
+      :root {
+        color-scheme: light dark;
+        --page: #dbe5ea;
+        --page-deep: #c9d7dd;
+        --ink: #172126;
+        --muted: #5f6e75;
+        --face: #f9faf7;
+        --face-edge: #d9dedc;
+        --bezel: #1c2529;
+        --tick: #344249;
+        --hand: #172126;
+        --accent: #e85d35;
+        --shadow: rgba(29, 48, 57, 0.2);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page: #131719;
+          --page-deep: #0d1012;
+          --ink: #edf2ef;
+          --muted: #9eaaa6;
+          --face: #e6e8e2;
+          --face-edge: #89908d;
+          --bezel: #080a0b;
+          --tick: #293338;
+          --hand: #141b1e;
+          --accent: #f06a43;
+          --shadow: rgba(0, 0, 0, 0.48);
+        }
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body { min-height: 100%; }
+
+      body {
+        margin: 0;
+        min-height: 100svh;
+        overflow-x: hidden;
+        font-family: "DM Sans", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--page) 88%, white 12%) 0 15%, transparent 58%),
+          linear-gradient(145deg, var(--page), var(--page-deep));
+      }
+
+      main {
+        width: 100%;
+        min-height: 100svh;
+        padding: max(26px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+        display: grid;
+        place-items: center;
+      }
+
+      .clock-stage {
+        width: min(82vw, 580px);
+        display: grid;
+        justify-items: center;
+        gap: clamp(24px, 4.5vh, 42px);
+      }
+
+      .clock-shell {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        padding: clamp(10px, 2.2vw, 18px);
+        background: var(--bezel);
+        box-shadow:
+          0 2px 2px rgba(255,255,255,.18) inset,
+          0 -4px 7px rgba(0,0,0,.32) inset,
+          0 28px 55px -22px var(--shadow),
+          0 8px 16px -9px var(--shadow);
+      }
+
+      .clock-shell::after {
+        content: "";
+        position: absolute;
+        inset: 1.5%;
+        border-radius: 50%;
+        pointer-events: none;
+        border: 1px solid rgba(255,255,255,.14);
+      }
+
+      .clock-face {
+        width: 100%;
+        height: 100%;
+        display: block;
+        border-radius: 50%;
+        background: var(--face);
+        box-shadow:
+          0 0 0 1px var(--face-edge),
+          0 4px 11px rgba(0,0,0,.18) inset;
+      }
+
+      .tick {
+        stroke: var(--tick);
+        stroke-linecap: round;
+      }
+
+      .tick.minute { stroke-width: 1.4; opacity: .62; }
+      .tick.hour { stroke-width: 3.4; }
+      .hour-number {
+        fill: var(--tick);
+        font-family: "Newsreader", Georgia, serif;
+        font-size: 35px;
+        font-weight: 500;
+        text-anchor: middle;
+        dominant-baseline: central;
+      }
+
+      .hand {
+        transform-origin: 150px 150px;
+        stroke-linecap: round;
+        will-change: transform;
+      }
+      .hour-hand { stroke: var(--hand); stroke-width: 9; }
+      .minute-hand { stroke: var(--hand); stroke-width: 6; }
+      .second-hand { stroke: var(--accent); stroke-width: 2.2; }
+      .second-tail { stroke: var(--accent); stroke-width: 3; }
+      .pin-outer { fill: var(--accent); }
+      .pin-inner { fill: var(--face); }
+
+      .readout {
+        text-align: center;
+        line-height: 1.2;
+      }
+
+      .date {
+        margin: 0;
+        font-family: "Newsreader", Georgia, serif;
+        font-size: clamp(24px, 4vw, 31px);
+        font-weight: 500;
+        letter-spacing: -.015em;
+      }
+
+      .zone {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (max-height: 650px) and (orientation: landscape) {
+        main { padding-block: 20px; }
+        .clock-stage {
+          width: min(68vh, 480px);
+          gap: 16px;
+        }
+        .date { font-size: 22px; }
+        .zone { margin-top: 5px; }
+      }
+
+      @media (max-width: 380px) {
+        .clock-stage { width: 88vw; }
+        .hour-number { font-size: 32px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .hand { will-change: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="clock-stage" aria-labelledby="live-time">
+        <div class="clock-shell">
+          <svg class="clock-face" viewBox="0 0 300 300" role="img" aria-labelledby="clock-title clock-desc">
+            <title id="clock-title">Current local time</title>
+            <desc id="clock-desc">A live analog clock showing the current time.</desc>
+            <g id="tick-marks" aria-hidden="true"></g>
+            <g aria-hidden="true">
+              <text class="hour-number" x="150" y="48">12</text>
+              <text class="hour-number" x="253" y="151">3</text>
+              <text class="hour-number" x="150" y="254">6</text>
+              <text class="hour-number" x="47" y="151">9</text>
+            </g>
+            <g aria-hidden="true">
+              <line id="hour-hand" class="hand hour-hand" x1="150" y1="159" x2="150" y2="91" />
+              <line id="minute-hand" class="hand minute-hand" x1="150" y1="162" x2="150" y2="61" />
+              <line id="second-tail" class="hand second-tail" x1="150" y1="153" x2="150" y2="179" />
+              <line id="second-hand" class="hand second-hand" x1="150" y1="158" x2="150" y2="46" />
+              <circle class="pin-outer" cx="150" cy="150" r="7.3" />
+              <circle class="pin-inner" cx="150" cy="150" r="2.5" />
+            </g>
+          </svg>
+        </div>
+        <div class="readout">
+          <p class="date" id="date-display"></p>
+          <p class="zone" id="zone-display"></p>
+          <p class="sr-only" id="live-time" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        var ns = "http://www.w3.org/2000/svg";
+        var marks = document.getElementById("tick-marks");
+        var i;
+
+        for (i = 0; i < 60; i += 1) {
+          var line = document.createElementNS(ns, "line");
+          var major = i % 5 === 0;
+          var angle = i * 6 * Math.PI / 180;
+          var outer = 134;
+          var inner = major ? 122 : 128;
+          line.setAttribute("x1", String(150 + Math.sin(angle) * inner));
+          line.setAttribute("y1", String(150 - Math.cos(angle) * inner));
+          line.setAttribute("x2", String(150 + Math.sin(angle) * outer));
+          line.setAttribute("y2", String(150 - Math.cos(angle) * outer));
+          line.setAttribute("class", major ? "tick hour" : "tick minute");
+          marks.appendChild(line);
+        }
+
+        var hourHand = document.getElementById("hour-hand");
+        var minuteHand = document.getElementById("minute-hand");
+        var secondHand = document.getElementById("second-hand");
+        var secondTail = document.getElementById("second-tail");
+        var dateDisplay = document.getElementById("date-display");
+        var zoneDisplay = document.getElementById("zone-display");
+        var liveTime = document.getElementById("live-time");
+        var clockDesc = document.getElementById("clock-desc");
+        var lastDate = "";
+        var lastMinute = -1;
+
+        var dateFormatter = new Intl.DateTimeFormat(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric"
+        });
+        var timeFormatter = new Intl.DateTimeFormat(undefined, {
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          timeZoneName: "long"
+        });
+        var zoneFormatter = new Intl.DateTimeFormat(undefined, {
+          timeZoneName: "long"
+        });
+
+        function setRotation(element, degrees) {
+          element.style.transform = "rotate(" + degrees + "deg)";
+        }
+
+        function updateClock() {
+          var now = new Date();
+          var milliseconds = now.getMilliseconds();
+          var seconds = now.getSeconds() + milliseconds / 1000;
+          var minutes = now.getMinutes() + seconds / 60;
+          var hours = (now.getHours() % 12) + minutes / 60;
+
+          setRotation(secondHand, seconds * 6);
+          setRotation(secondTail, seconds * 6);
+          setRotation(minuteHand, minutes * 6);
+          setRotation(hourHand, hours * 30);
+
+          var dateText = dateFormatter.format(now);
+          if (dateText !== lastDate) {
+            dateDisplay.textContent = dateText;
+            lastDate = dateText;
+          }
+
+          if (now.getMinutes() !== lastMinute) {
+            var timeText = timeFormatter.format(now);
+            liveTime.textContent = timeText;
+            clockDesc.textContent = "A live analog clock showing " + timeText + ".";
+            lastMinute = now.getMinutes();
+          }
+
+          requestAnimationFrame(updateClock);
+        }
+
+        var zoneParts = zoneFormatter.formatToParts(new Date());
+        var zoneName = "Local time";
+        for (i = 0; i < zoneParts.length; i += 1) {
+          if (zoneParts[i].type === "timeZoneName") zoneName = zoneParts[i].value;
+        }
+        zoneDisplay.textContent = zoneName;
+
+        updateClock();
+      }());
+    </script>
+  </body>
+</html>
