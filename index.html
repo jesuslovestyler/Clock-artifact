@@ -186,9 +186,32 @@
       @media (prefers-reduced-motion: reduce) {
         .hand { will-change: auto; }
       }
+
+      .home-pill {
+        position: fixed;
+        top: max(12px, env(safe-area-inset-top));
+        left: max(12px, env(safe-area-inset-left));
+        z-index: 10;
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 14px;
+        border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+        border-radius: 999px;
+        background: var(--page-deep);
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: .02em;
+        line-height: 1;
+        text-decoration: none;
+        box-shadow: 0 4px 14px -6px var(--shadow);
+      }
+      .home-pill:hover { background: color-mix(in srgb, var(--page-deep) 82%, var(--ink) 10%); }
+      .home-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     </style>
   </head>
   <body>
+    <a class="home-pill" href="https://jesuslovestyler.com/">⌂ Home</a>
     <main>
       <section class="clock-stage" aria-labelledby="live-time">
         <div class="clock-shell">
@@ -308,5 +331,6 @@
         updateClock();
       }());
     </script>
+    <script data-goatcounter="https://jesuslovestyler.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
   </body>
 </html>
